@@ -67,7 +67,7 @@ MSCEqFRos::MSCEqFRos(std::shared_ptr<rclcpp::Node> node,
   }
 }
 
-void MSCEqFRos::callback_image(const sensor_msgs::msg::Image::SharedPtr &msg)
+void MSCEqFRos::callback_image(const sensor_msgs::msg::Image::ConstSharedPtr &msg)
 {
   cv_bridge::CvImageConstPtr cv_ptr;
   try
@@ -82,7 +82,7 @@ void MSCEqFRos::callback_image(const sensor_msgs::msg::Image::SharedPtr &msg)
 
   msceqf::Camera cam;
 
-  cam.timestamp_ = cv_ptr->header.stamp.sec + 1.0e9 * cv_ptr->header.stamp.nanosec;
+  cam.timestamp_ = cv_ptr->header.stamp.sec + 1.0e-9 * cv_ptr->header.stamp.nanosec;
   cam.image_ = cv_ptr->image.clone();
 
   {
@@ -92,11 +92,11 @@ void MSCEqFRos::callback_image(const sensor_msgs::msg::Image::SharedPtr &msg)
   }
 }
 
-void MSCEqFRos::callback_imu(const sensor_msgs::msg::Imu::SharedPtr &msg)
+void MSCEqFRos::callback_imu(const sensor_msgs::msg::Imu::ConstSharedPtr &msg)
 {
   msceqf::Imu imu;
 
-  auto timestamp = msg->header.stamp.sec + 1.0e9 * msg->header.stamp.nanosec;
+  auto timestamp = msg->header.stamp.sec + 1.0e-9 * msg->header.stamp.nanosec;
 
   imu.timestamp_ = timestamp;
   imu.ang_ << msg->angular_velocity.x, msg->angular_velocity.y, msg->angular_velocity.z;

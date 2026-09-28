@@ -23,6 +23,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <Eigen/Eigen>
 #include <atomic>
+#include <cmath>
 #include <sensor_msgs/msg/image.hpp>
 #include <sensor_msgs/msg/imu.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
@@ -69,13 +70,13 @@ class MSCEqFRos
    * @brief Camera callback
    * @param Message message constant pointer
    */
-  void callback_image(const sensor_msgs::msg::Image::SharedPtr &msg);
+  void callback_image(const sensor_msgs::msg::Image::ConstSharedPtr &msg);
 
   /**
    * @brief IMU callback
    * @param Message message constant pointer
    */
-  void callback_imu(const sensor_msgs::msg::Imu::SharedPtr &msg);
+  void callback_imu(const sensor_msgs::msg::Imu::ConstSharedPtr &msg);
 
  private:
   /**
@@ -99,7 +100,7 @@ class MSCEqFRos
     if (sec64 < 0 || sec64 > std::numeric_limits<uint32_t>::max())
       throw std::runtime_error("Time is out of dual 32-bit range");
     uint32_t sec = static_cast<uint32_t>(sec64);
-    uint32_t nsec = static_cast<uint32_t>(boost::math::round((t - sec) * 1e9));
+    uint32_t nsec = static_cast<uint32_t>(std::llround((t - sec) * 1e9));
     sec += (nsec / 1000000000ul);
     nsec %= 1000000000ul;
     return rclcpp::Time(sec, nsec);
@@ -109,8 +110,8 @@ class MSCEqFRos
 
   msceqf::MSCEqF sys_;  //<! MSCEqF system
 
-  rclcpp::Subscription<sensor_msgs::msg::Image::SharedPtr>::SharedPtr sub_cam_;  //<! Camera subscriber
-  rclcpp::Subscription<sensor_msgs::msg::Imu::SharedPtr>::SharedPtr sub_imu_;    //<! IMU subscriber
+  rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_cam_;  //<! Camera subscriber
+  rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr sub_imu_;    //<! IMU subscriber
 
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr pub_pose_;  //<! Pose publisher
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub_image_;                       //<! Image publisher
